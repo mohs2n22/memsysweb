@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mems-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: medmsys
+      MYSQL_USER: mems_user
+      MYSQL_PASSWORD: mems_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: mems-app
+    restart: unless-stopped
+    ports:
+      - "80:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Server=db;Database=medmsys;User=mems_user;Password=mems_password;SslMode=None;AllowPublicKeyRetrieval=True;"
+      Database__Server: db
+      Database__Port: 3306
+      Database__Database: medmsys
+      Database__User: mems_user
+      Database__Password: mems_password
+      Database__SslMode: false
+      Database__AllowPublicKeyRetrieval: true
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

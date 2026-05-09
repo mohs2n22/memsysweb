@@ -1,0 +1,24 @@
+services:
+  web:
+    type: web
+    runtime: docker
+    dockerfilePath: deploy/Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Database__Server
+        sync: false
+      - key: Database__Port
+        sync: false
+      - key: Database__Database
+        value: medmsys
+      - key: Database__User
+        sync: false
+      - key: Database__Password
+        sync: false
+      - key: Database__SslMode
+        value: false
+      - key: Database__AllowPublicKeyRetrieval
+        value: true
